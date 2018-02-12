@@ -20,35 +20,35 @@ access_secret <- "VQNFrxu905eZMHbIZhatUupRkkdFfNv2ofAYywGM6LO0M"
 #Pulling Data
 setup_twitter_oauth(consumer_key, consumer_secret, access_token, access_secret)
 tw = twitteR::searchTwitter('@liveaction', n = 1e3, since = '2016-11-08', retryOnRateLimit = 1e3)
-d = twitteR::twListToDF(tw)
+d <- twitteR::twListToDF(tw)
+load("/Users/sowacm1/Desktop/crowdsourcing/crowdsourcing/df.rds")
+d <- subset(d, grepl("\\@.*", text))
 
 mentions <- str_extract_all(d$text, "\\@(\\w*)")
-df.l <- lapply(mentions, function(x) data.frame(mentions=c(x)))
-df <- do.call(rbind, df.l)
-mentions2 <- gsub("\\@", "", mentions)
+#df.l <- lapply(mentions, function(x) data.frame(mentions=c(x)))
 
-
-edgelist <- list()
+edgelist <- data.frame()
 for (i in 1:length(d$screenName)){
   for (j in 1:length(mentions[[i]])){
     #name <- d$screenName[i]
-    tmp <- list(from=d$screenName[i], to = gsub("\\@", "", mentions[[i]][j]))
+    tmp <- data.frame(from=d$screenName[i], to = gsub("\\@", "", mentions[[i]][j]))
     #edgelist[[name]] <- append(edgelist, tmp)
     edgelist <- base::rbind(edgelist, tmp)
   }
 }
 
-mtx <- data.matrix(edgelist)
+mtx <- as.matrix(edgelist)
 
 #Building network into an iGraph dataframe
-g <- graph_from_edgelist(mtx, directed = TRUE)
-plot.igraph(g)
+g <- graph_from_edgelist(mtx, directed = FALSE)
+plot.igraph(g, size=2, arrow.size=.2, arrow.width=.2, vertex.label = NA)
+
 
 #Top nodes by degree
 
 
 #Top nodes by betweenness
-bet <- betweenness(g, v = V(g), directed = TRUE, weights = NULL,
+bet <- betweenness(g, v = V(g), directed = FALSE, weights = NULL,
                    nobigint = TRUE, normalized = FALSE)
 
 
@@ -60,8 +60,9 @@ clo <- closeness(g, vids = V(g), mode = c("out", "in", "all", "total"),
 #Top nodes by eigenvector centrality
 eig <- eigen_centrality(g, directed = FALSE, scale = TRUE, weights = NULL,
                         options = arpack_defaults)
+eig$vector
 
 #Diameter of network
-diam <- diameter(g, directed = TRUE, unconnected = TRUE, weights = NULL)
+diam <- diameter(g, directed = FALSE, unconnected = TRUE, weights = NULL)
 
 save(d, file="df.rds")
