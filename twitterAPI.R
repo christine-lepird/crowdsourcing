@@ -34,7 +34,7 @@ for (i in length(d$screenName)){
     #name <- d$screenName[i]
     tmp <- list(from=d$screenName[i], to = mentions[[i]][j])
     #edgelist[[name]] <- append(edgelist, tmp)
-    edgelist <- rbind(edgelist, tmp)
+    edgelist <- base::rbind(edgelist, tmp)
   }
 }
 
@@ -61,3 +61,5 @@ eig <- eigen_centrality(g, directed = FALSE, scale = TRUE, weights = NULL,
 
 #Diameter of network
 diam <- diameter(g, directed = TRUE, unconnected = TRUE, weights = NULL)
+
+save(d, file="df.rds")
