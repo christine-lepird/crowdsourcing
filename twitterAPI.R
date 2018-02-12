@@ -29,18 +29,20 @@ mentions2 <- gsub("\\@", "", mentions)
 
 
 edgelist <- list()
-for (i in length(d$screenName)){
-  for (j in length(mentions[[i]])){
+for (i in 1:length(d$screenName)){
+  for (j in 1:length(mentions[[i]])){
     #name <- d$screenName[i]
-    tmp <- list(from=d$screenName[i], to = mentions[[i]][j])
+    tmp <- list(from=d$screenName[i], to = gsub("\\@", "", mentions[[i]][j]))
     #edgelist[[name]] <- append(edgelist, tmp)
     edgelist <- base::rbind(edgelist, tmp)
   }
 }
 
+mtx <- data.matrix(edgelist)
 
 #Building network into an iGraph dataframe
-
+g <- graph_from_edgelist(mtx, directed = TRUE)
+plot.igraph(g)
 
 #Top nodes by degree
 
